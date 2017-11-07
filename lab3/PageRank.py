@@ -108,10 +108,13 @@ def main(argv=None):
     readAirports("airports.txt")
     readRoutes("routes.txt")
 
-    print airportHash["WYA"]
-    print edgeHash["WYAADL"]
+    # test if sum of weights equal outweight for given airport
+    testairport = "FRA"
+    testout = 0
+    for e in edgeHash2[testairport]:
+        testout += e.weight
 
-    print edgeHash2["FRA"][0]
+    print "Sum(k) equals outweight? {0} = {1}?".format(testout, airportHash[testairport].outweight)
 
     time1 = time.time()
     iterations = computePageRanks()
