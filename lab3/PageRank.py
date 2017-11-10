@@ -30,8 +30,16 @@ class Airport:
         self.listPosition = 0
 
     def __repr__(self):
-        #return "{0}\t{2}\t{1}".format(self.code, self.name, self.pageIndex)
-        return "{0}\t{1}\t{2}".format(self.code, self.name, self.outweight)
+        return "{0}\t{2}\t{1}".format(self.code, self.name, self.pageIndex)
+        #return "{0}\t{1}\t{2}".format(self.code, self.name, self.outweight)
+
+    def __cmp__(self, other):
+        if self.pageIndex < other.pageIndex:
+            return -1
+        elif self.pageIndex > other.pageIndex:
+            return 1
+        else:
+            return 0
 
 edgeList = [] # list of Edge
 edgeHash = dict() # hash of edge to ease the match (key: IATA1 concat IATA2)
@@ -108,7 +116,7 @@ def computePageRanks():
     P = [1.0/n for i in xrange(n)]
     L = 0.8
     diff = 1000000
-    th = 1.0e-06
+    th = 1.0e-07
     iterations = 0
     
     while (diff > th):
@@ -126,13 +134,16 @@ def computePageRanks():
 
         diff = computeDifference(P,Q)
         # Check if sum = 1
-        print sum(i for i in P)
+        #print sum(i for i in P)
         P = Q
         iterations += 1    
+    for i in airportList:
+        i.pageIndex = P[i.listPosition]
     return iterations
 
-def outputPageRanks():
-    print""
+def outputPageRanks(n=10):
+    ranking = sorted(airportList, reverse=True)
+    print ranking[0:n]
     # write your code
 
 def main(argv=None):
@@ -141,10 +152,9 @@ def main(argv=None):
     time1 = time.time()
     iterations = computePageRanks()
     time2 = time.time()
-    outputPageRanks()
+    outputPageRanks(15)
     print "#Iterations:", iterations
     print "Time of computePageRanks():", time2-time1
-
 
 if __name__ == "__main__":
     sys.exit(main())
