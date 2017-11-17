@@ -114,26 +114,28 @@ def computeDifference(A, B):
 def computePageRanks():
     n = len(airportList)
     P = [1.0/n for i in xrange(n)]
-    L = 0.8
+    L = 0.85
     diff = 1000000
-    th = 1.0e-07
+    th = 1.0e-06
     iterations = 0
     
     while (diff > th):
         Q = [0 for i in xrange(n)]
+
         for i in airportList:
             #compute sum
             s=0
+            
             if i.code in edgeHash2:
                 for e in edgeHash2[i.code]:
                     s += (P[airportHash[e.origin].listPosition] * e.weight) / airportHash[e.origin].outweight
                     Q[i.listPosition] = L * s + (1.0-L)/n  
             else:
                 #Deal with edges without outgoing nodes
-                Q[i.listPosition] = 1.0/n        
+                Q[i.listPosition] = 1.0/n
 
         diff = computeDifference(P,Q)
-        # Check if sum = 1
+        #Check if sum = 1
         #print sum(i for i in P)
         P = Q
         iterations += 1    
@@ -152,7 +154,7 @@ def main(argv=None):
     time1 = time.time()
     iterations = computePageRanks()
     time2 = time.time()
-    outputPageRanks(15)
+    outputPageRanks(10)
     print "#Iterations:", iterations
     print "Time of computePageRanks():", time2-time1
 
