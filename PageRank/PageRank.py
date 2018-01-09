@@ -115,37 +115,44 @@ def computePageRanks():
     n = len(airportList)
     P = [1.0/n for i in xrange(n)]
     L = 0.85
-    diff = 1000000
+    diff = 1000000 #just a high number
     th = 1.0e-06
-    iterations = 0
-    
+    iterations = 0  
     while (diff > th):
         Q = [0 for i in xrange(n)]
+        
+        #deal with dangling nodes - distribute PR over all other nodes
+        dangling = 0.0
+        count = 0
+        for i in airportList:
+            if i.outweight < 1:
+                count += 1
+                dangling += P[i.listPosition]
+        dangling = dangling / (len(airportList)-count)
 
+        #Compute PR
         for i in airportList:
             #compute sum
             s=0
-            
             if i.code in edgeHash2:
                 for e in edgeHash2[i.code]:
                     s += (P[airportHash[e.origin].listPosition] * e.weight) / airportHash[e.origin].outweight
-                    Q[i.listPosition] = L * s + (1.0-L)/n  
+                    Q[i.listPosition] = L * s + dangling + (1.0-L)/n 
             else:
-                #Deal with edges without outgoing nodes
-                Q[i.listPosition] = 1.0/n
+                #Deal with nodes without incoming edges - Probability of a random jump
+                Q[i.listPosition] = (1.0-L)/n
 
         diff = computeDifference(P,Q)
-        #Check if sum = 1
-        #print sum(i for i in P)
         P = Q
         iterations += 1    
     for i in airportList:
         i.pageIndex = P[i.listPosition]
     return iterations
 
-def outputPageRanks(n=10):
+def outputPageRanks(n=len(airportList)-1):
     ranking = sorted(airportList, reverse=True)
-    print ranking[0:n]
+    for a in ranking[0:n]:
+        print a
     # write your code
 
 def main(argv=None):
@@ -154,7 +161,7 @@ def main(argv=None):
     time1 = time.time()
     iterations = computePageRanks()
     time2 = time.time()
-    outputPageRanks(10)
+    outputPageRanks()
     print "#Iterations:", iterations
     print "Time of computePageRanks():", time2-time1
 
